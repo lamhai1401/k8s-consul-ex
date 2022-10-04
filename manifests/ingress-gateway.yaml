@@ -1,0 +1,15 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: IngressGateway
+metadata:
+  # The resource name must match the name of the ingress gateway you set in your values.yaml file. In this case, you set it to ingress-gateway.
+  name: ingress-gateway
+  # Create it in the consul namespace since that’s where the gateway deployment is running.
+  namespace: consul
+spec:
+  listeners:
+    - port: 8080
+      protocol: http
+      services:
+        - name: frontend
+          hosts:
+          - "*"

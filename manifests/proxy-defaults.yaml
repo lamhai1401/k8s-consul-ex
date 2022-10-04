@@ -1,0 +1,11 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+# The resource kind is called ProxyDefaults because it configures the defaults for all proxies.
+kind: ProxyDefaults
+metadata:
+  # There can only be one proxy defaults config for the whole Consul installation, and its name must be global.
+  name: global
+  # You could put it in any namespace, but since it’s configuring the global defaults, it makes sense in the consul namespace.
+  namespace: consul
+spec:
+  config:
+    protocol: http

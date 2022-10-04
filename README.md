@@ -53,4 +53,21 @@ kubectl exec deploy/frontend -c frontend -- \
 ### If running Kubernetes in the cloud or on Linux, use
 
 kubectl port-forward service/frontend 6060
-# k8s-consul-ex
+
+## Upgrade consul config
+
+consul-k8s upgrade -config-file values.yaml
+
+## Start gate way
+
+kubectl apply -f ingress-gateway.yaml
+kubectl get ingressgateway ingress-gateway -n consul
+
+### Check error if exist
+
+kubectl describe ingressgateway ingress-gateway -n consul
+
+### Apply default proxy
+
+kubectl apply -f proxy-defaults.yaml
+kubectl get proxydefaults global -n consul

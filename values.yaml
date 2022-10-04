@@ -44,3 +44,26 @@ ui:
     # Use port 8500 for the UI.
     port:
       http: 8500
+
+ingressGateways:
+  # Enable ingress gateways.
+  enabled: true
+  defaults:
+    # Since there is only one node in minikube,
+    # set affinity to null so during an upgrade
+    # two ingress gateway pods can run on the
+    # same node.
+    affinity: null
+  gateways:
+    - name: ingress-gateway
+      # Set the service type to LoadBalancer so
+      # that you can access it through minikube tunnel.
+      service:
+        type: LoadBalancer
+        # type: LoadBalancer
+        # Access the gateway on port 8081.
+        ports:
+          - port: 8080
+      # In production scenarios you should run multiple
+      # replicas for redundancy.
+      replicas: 1
