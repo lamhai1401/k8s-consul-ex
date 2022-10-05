@@ -2,6 +2,7 @@
 
 minikube tunnel
 consul-k8s install -config-file values.yaml
+consul-k8s upgrade -config-file values.yaml
 
 ## UI
 
@@ -71,3 +72,78 @@ kubectl describe ingressgateway ingress-gateway -n consul
 
 kubectl apply -f proxy-defaults.yaml
 kubectl get proxydefaults global -n consul
+
+## Restart metrics server
+
+kubectl rollout restart deploy/prometheus-server -n consul
+
+## Install gafana
+
+kubectl create secret generic grafana-admin \
+      --from-literal=admin-user=admin \
+      --from-literal=admin-password=admin
+
+helm install grafana grafana \
+    --version 6.17.1 \
+    --repo https://grafana.github.io/helm-charts \
+    --set service.type=LoadBalancer \
+    --set service.port=3000 \
+    --set persistence.enabled=true \
+    --set rbac.pspEnabled=false \
+    --set admin.existingSecret=grafana-admin \
+    --wait
+
+### Gafana success rate
+sum(
+  rate(
+    envoy_http_downstream_rq_completed{
+      consul_source_service="$Service",
+      envoy_http_conn_manager_prefix=~"public_listener|ingress_upstream_8080"
+    }[$__rate_interval]
+  )
+)
+
+### Gafana error rate
+sum(
+  rate(
+    envoy_http_downstream_rq_xx{
+      consul_source_service="$Service",
+      envoy_http_conn_manager_prefix=~"public_listener|ingress_upstream_8080",
+      envoy_response_code_class="5"
+    }[$__rate_interval]
+  )
+) /
+sum(
+  rate(
+    envoy_http_downstream_rq_completed{
+      consul_source_service="$Service",
+      envoy_http_conn_manager_prefix=~"public_listener|ingress_upstream_8080"
+    }[$__rate_interval]
+  )
+)
+
+### Gafana latency
+
+histogram_quantile(
+  0.5,
+  sum(
+    rate(
+      envoy_http_downstream_rq_time_bucket{
+        consul_source_service="$Service",
+        envoy_http_conn_manager_prefix=~"public_listener|ingress_upstream_8080"
+      }[$__rate_interval]
+    )
+  ) by (le)
+)
+
+histogram_quantile(
+  0.99,
+  sum(
+    rate(
+      envoy_http_downstream_rq_time_bucket{
+        consul_source_service="$Service",
+        envoy_http_conn_manager_prefix=~"public_listener|ingress_upstream_8080"
+      }[$__rate_interval]
+    )
+  ) by (le)
+)
