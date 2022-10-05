@@ -147,3 +147,24 @@ histogram_quantile(
     )
   ) by (le)
 )
+
+## install tracing collector
+
+helm install jaeger jaeger-operator \
+      --version 2.26.0 \
+      --repo https://jaegertracing.github.io/helm-charts \
+      --wait
+
+kubectl apply -f jaeger.yaml
+
+[Jaeger home](http://localhost:16686/)
+
+### Add config to proxydefault
+
+kubectl apply -f proxy-defaults.yaml
+
+### Restart all services
+
+kubectl rollout restart deploy/consul-ingress-gateway -n consul
+kubectl rollout restart deploy/frontend
+kubectl rollout restart deploy/backend
