@@ -1,0 +1,17 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceIntentions
+metadata:
+  name: frontend
+spec:
+  destination:
+    name: frontend
+  sources:
+    - name: ingress-gateway
+      # action: allow
+      permissions:
+        - http:
+            pathPrefix: /admin
+          action: deny
+        - http:
+            pathPrefix: /
+          action: allow
