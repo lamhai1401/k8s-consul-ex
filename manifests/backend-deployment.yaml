@@ -27,3 +27,8 @@ spec:
               value: "http://jaeger-collector.default:9411"
           ports:
             - containerPort: 7000
+          readinessProbe:
+            httpGet:
+              port: 7000
+              path: /healthz
+            periodSeconds: 5

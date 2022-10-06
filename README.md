@@ -168,3 +168,7 @@ kubectl apply -f proxy-defaults.yaml
 kubectl rollout restart deploy/consul-ingress-gateway -n consul
 kubectl rollout restart deploy/frontend
 kubectl rollout restart deploy/backend
+
+## Check pod status
+
+kubectl get pods -l app=backend
