@@ -4,7 +4,21 @@ metadata:
   name: backend
 spec:
   routes:
-    - destination:
-        # numRetries: 5
-        # retryOnStatusCodes: [503]
-        requestTimeout: "1s"
+    # - destination:
+    # numRetries: 5
+    # retryOnStatusCodes: [503]
+    # requestTimeout: "1s"
+
+    - match:
+        http:
+          queryParam:
+            - name: canary
+              exact: "true"
+      destination:
+        serviceSubset: v2
+    # routing /bird prefic to /birds
+    # - match:
+    #     http:
+    #       pathPrefix: /bird
+    #   destination:
+    #     service: birds
